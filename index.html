@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>波羅的海十八日</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1E2B29;
+  --parchment:#F2EADA;
+  --parchment-2:#FBF7EE;
+  --amber:#C97B2E;
+  --amber-deep:#8A5017;
+  --amber-tint:#F5E3C9;
+  --juniper:#3F6357;
+  --juniper-deep:#25382F;
+  --juniper-tint:#DDE7DE;
+  --rowan:#A23E2C;
+  --rowan-deep:#6E2A1D;
+  --rowan-tint:#F0DAD1;
+  --ash:#88837A;
+  --line:#DCD3BE;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--parchment);
+  color:var(--ink);
+  font-family:'Noto Sans TC',sans-serif;
+  padding:0 0 4rem;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px;}
+.hero{
+  padding:2.6rem 20px 1.6rem;
+  text-align:center;
+  border-bottom:1px solid var(--line);
+  margin-bottom:1.6rem;
+}
+.hero h1{
+  font-family:'Noto Serif TC',serif;
+  font-weight:700;
+  font-size:30px;
+  margin:0 0 6px;
+  letter-spacing:1px;
+}
+.hero p{
+  margin:0;
+  color:var(--ash);
+  font-size:13px;
+  letter-spacing:2px;
+}
+.tabs{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin:1.4rem 0 0;
+}
+.tab-btn{
+  font-family:'Noto Serif TC',serif;
+  font-size:15px;
+  padding:9px 22px;
+  border-radius:999px;
+  border:1px solid var(--ink);
+  background:transparent;
+  color:var(--ink);
+  cursor:pointer;
+}
+.tab-btn.active{background:var(--ink);color:var(--parchment-2);}
+.view{display:none;}
+.view.active{display:block;}
+
+.legend{display:flex;gap:14px;justify-content:center;margin:0 0 18px;flex-wrap:wrap;}
+.legend span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ash);}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+.dot.latvia{background:var(--amber);}
+.dot.estonia{background:var(--juniper);}
+.dot.lithuania{background:var(--rowan);}
+
+.stamprow{
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  padding:6px 4px 18px;
+  scrollbar-width:thin;
+}
+.stamp{
+  flex:0 0 auto;
+  width:56px;height:56px;
+  border-radius:50%;
+  border:2px dashed var(--ash);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;
+  background:var(--parchment-2);
+  font-family:'JetBrains Mono',monospace;
+  transform:rotate(-2deg);
+  transition:transform .15s ease;
+}
+.stamp:nth-child(3n){transform:rotate(2deg);}
+.stamp:nth-child(3n+1){transform:rotate(-1.5deg);}
+.stamp .d{font-size:15px;font-weight:600;line-height:1;}
+.stamp .m{font-size:9px;color:var(--ash);margin-top:2px;}
+.stamp.latvia{border-color:var(--amber);}
+.stamp.estonia{border-color:var(--juniper);}
+.stamp.lithuania{border-color:var(--rowan);}
+.stamp.active{
+  border-style:solid;
+  transform:rotate(0deg) scale(1.08);
+}
+.stamp.active.latvia{background:var(--amber);color:#fff;}
+.stamp.active.estonia{background:var(--juniper);color:#fff;}
+.stamp.active.lithuania{background:var(--rowan);color:#fff;}
+.stamp.active .m{color:rgba(255,255,255,.85);}
+
+.daycard{
+  background:var(--parchment-2);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:26px 26px 22px;
+}
+.daycard .top{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:2px;}
+.daycard .daylabel{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ash);letter-spacing:1px;}
+.daycard .date{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ash);}
+.daycard h2{font-family:'Noto Serif TC',serif;font-size:26px;margin:2px 0 10px;}
+.tag{
+  display:inline-block;
+  font-size:11px;
+  padding:3px 10px;
+  border-radius:999px;
+  margin-right:6px;
+  margin-bottom:14px;
+}
+.tag.latvia{background:var(--amber-tint);color:var(--amber-deep);}
+.tag.estonia{background:var(--juniper-tint);color:var(--juniper-deep);}
+.tag.lithuania{background:var(--rowan-tint);color:var(--rowan-deep);}
+.stay{
+  font-size:13px;color:var(--ash);margin-bottom:16px;
+  padding-bottom:16px;border-bottom:1px solid var(--line);
+}
+.stay b{color:var(--ink);font-weight:500;}
+.theme{font-size:14.5px;line-height:1.8;margin-bottom:18px;}
+.blocks{display:flex;flex-direction:column;gap:14px;}
+.block{display:flex;gap:14px;}
+.block .time{
+  flex:0 0 78px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;color:var(--ash);
+  padding-top:2px;
+}
+.block .body{flex:1;font-size:13.5px;line-height:1.65;border-left:2px solid var(--line);padding-left:14px;}
+.block .body .act{margin-bottom:3px;}
+.block .meta{font-size:11.5px;color:var(--ash);}
+.block .meta span{margin-right:10px;}
+.note{
+  margin-top:18px;padding-top:14px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--ash);line-height:1.7;
+}
+.navrow{display:flex;justify-content:space-between;margin-top:16px;}
+.navbtn{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:13px;padding:8px 16px;border-radius:8px;
+  border:1px solid var(--line);background:var(--parchment-2);cursor:pointer;
+}
+.navbtn:disabled{opacity:.35;cursor:default;}
+
+.panel{
+  background:var(--parchment-2);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:22px 24px;
+  margin-bottom:18px;
+}
+.panel h3{
+  font-family:'Noto Serif TC',serif;font-size:17px;margin:0 0 14px;
+}
+.travelers{display:flex;gap:10px;flex-wrap:wrap;}
+.travelers input{
+  flex:1;min-width:100px;
+  padding:9px 10px;border:1px solid var(--line);border-radius:8px;
+  font-family:'Noto Sans TC',sans-serif;font-size:13px;background:#fff;
+}
+.form-grid{display:flex;flex-direction:column;gap:10px;}
+.form-row{display:flex;gap:10px;}
+.form-row input[type=text], .form-row input[type=number]{
+  flex:1;padding:9px 10px;border:1px solid var(--line);border-radius:8px;
+  font-family:'Noto Sans TC',sans-serif;font-size:13px;background:#fff;
+}
+.form-row input[type=number]{font-family:'JetBrains Mono',monospace;}
+.paidby{display:flex;gap:8px;flex-wrap:wrap;}
+.chip-select{
+  padding:7px 14px;border-radius:999px;border:1px solid var(--line);
+  font-size:12.5px;cursor:pointer;background:#fff;color:var(--ash);
+}
+.chip-select.on{background:var(--ink);color:var(--parchment-2);border-color:var(--ink);}
+.split-label{font-size:12px;color:var(--ash);margin-top:2px;}
+.addbtn{
+  margin-top:4px;
+  padding:10px;border-radius:8px;border:none;background:var(--amber);
+  color:#fff;font-size:13.5px;font-weight:500;cursor:pointer;
+}
+.ledger{width:100%;border-collapse:collapse;margin-top:6px;}
+.ledger th{
+  text-align:left;font-size:11px;color:var(--ash);font-weight:500;
+  padding:6px 4px;border-bottom:1px solid var(--line);
+}
+.ledger td{
+  padding:9px 4px;font-size:12.5px;border-bottom:1px solid var(--line);
+  vertical-align:top;
+}
+.ledger td.amt{font-family:'JetBrains Mono',monospace;text-align:right;white-space:nowrap;}
+.ledger td.del{text-align:right;}
+.ledger td.del button{
+  border:none;background:none;color:var(--ash);cursor:pointer;font-size:12px;
+}
+.empty{color:var(--ash);font-size:13px;padding:10px 0;}
+.balance-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;}
+.balcard{
+  background:var(--parchment);border:1px solid var(--line);border-radius:10px;
+  padding:12px 14px;
+}
+.balcard .name{font-size:12.5px;color:var(--ash);margin-bottom:4px;}
+.balcard .val{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:600;}
+.val.pos{color:var(--juniper-deep);}
+.val.neg{color:var(--rowan-deep);}
+.val.zero{color:var(--ash);}
+.settle-line{
+  display:flex;align-items:center;gap:8px;font-size:13px;padding:8px 0;
+  border-bottom:1px solid var(--line);
+}
+.settle-line:last-child{border-bottom:none;}
+.settle-line .arrow{color:var(--amber);font-family:'JetBrains Mono',monospace;}
+.foot-note{font-size:11.5px;color:var(--ash);text-align:center;margin-top:6px;line-height:1.7;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>波羅的海十八日</h1>
+  <p>RIGA · PÄRNU · TALLINN · VILNIUS · TRAKAI</p>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="itinerary">行程</button>
+    <button class="tab-btn" data-tab="expense">分帳</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="view active" id="view-itinerary">
+    <div class="legend">
+      <span><i class="dot latvia"></i>拉脫維亞</span>
+      <span><i class="dot estonia"></i>愛沙尼亞</span>
+      <span><i class="dot lithuania"></i>立陶宛</span>
+    </div>
+    <div class="stamprow" id="stamprow"></div>
+    <div class="daycard" id="daycard"></div>
+    <div class="navrow">
+      <button class="navbtn" id="prevBtn">← 前一天</button>
+      <button class="navbtn" id="nextBtn">後一天 →</button>
+    </div>
+  </div>
+
+  <div class="view" id="view-expense">
+    <div class="panel">
+      <h3>旅伴</h3>
+      <div class="travelers">
+        <input id="t0" placeholder="旅伴 A 姓名/暱稱">
+        <input id="t1" placeholder="旅伴 B 姓名/暱稱">
+        <input id="t2" placeholder="旅伴 C 姓名/暱稱">
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>新增支出</h3>
+      <div class="form-grid">
+        <div class="form-row">
+          <input type="text" id="descInput" placeholder="例如：里加中央市場採買">
+          <input type="number" id="amtInput" placeholder="金額 (EUR)" min="0" step="0.01" style="max-width:130px;">
+        </div>
+        <div>
+          <div class="split-label">由誰先付</div>
+          <div class="paidby" id="paidbyRow"></div>
+        </div>
+        <div>
+          <div class="split-label">平分對象（預設全員）</div>
+          <div class="paidby" id="splitRow"></div>
+        </div>
+        <div id="formError" style="color:var(--rowan-deep);font-size:12px;display:none;"></div>
+        <button class="addbtn" id="addExpenseBtn">加入支出</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>支出明細</h3>
+      <table class="ledger" id="ledgerTable">
+        <thead><tr><th>項目</th><th>付款人</th><th style="text-align:right;">金額</th><th></th></tr></thead>
+        <tbody id="ledgerBody"></tbody>
+      </table>
+      <div class="empty" id="ledgerEmpty">還沒有任何支出紀錄。</div>
+    </div>
+
+    <div class="panel">
+      <h3>目前餘額</h3>
+      <div class="balance-grid" id="balanceGrid"></div>
+    </div>
+
+    <div class="panel">
+      <h3>建議結算</h3>
+      <div id="settleList"></div>
+    </div>
+
+    <p class="foot-note">
+      資料只儲存在你目前使用的裝置／帳號中，不會自動同步給其他兩位旅伴。<br>
+      若需要三人共用同一份帳目，建議其中一人統一在同一裝置上記錄，或定期截圖同步。
+    </p>
+  </div>
+
+</div>
+
+<script>
+const DAYS = [
+{day:1,date:"9/14 (一)",country:"latvia",city:"里加",stay:"Heart of Riga Apartment",theme:"抵達里加國際機場，辦理入境與海關手續，機場專車送迎入住公寓。",blocks:[
+  {time:"下午–傍晚",act:"降落里加，入境與海關手續，迎接大件行李。",meta:["機場專車接送"]},
+  {time:"15:00–18:00",act:"前往全歐洲最大的里加中央市場，採買新鮮鮭魚與在地蔬果，為連宿小廚房補貨。",meta:["步行","中央市場週一～六 07:30–18:00"]}
+]},
+{day:2,date:"9/15 (二)",country:"latvia",city:"里加",stay:"Heart of Riga Apartment",theme:"里加古城精華一日遊：主教座堂、三兄弟屋、聖彼得教堂高空登頂、黑頭宮夜景。",blocks:[
+  {time:"09:30–12:00",act:"搭乘高空電梯登上聖彼得教堂，捕捉紅瓦全景。",meta:["老城區步行"]},
+  {time:"13:30–17:00",act:"漫步里加主教座堂內部管風琴、三兄弟屋中世紀老宅，傍晚黑頭宮夜景打卡。",meta:["老城區步行"]}
+]},
+{day:3,date:"9/16 (三)",country:"latvia",city:"里加",stay:"Heart of Riga Apartment",theme:"新藝術運動魔幻雕刻街區，下午深度導覽 KGB 博物館。",blocks:[
+  {time:"09:30–12:30",act:"探訪阿爾伯特街新藝術運動建築群，品味人面、怪獸與幾何浮雕。",meta:["路面電車／步行"]},
+  {time:"14:00–16:30",act:"預約導覽 KGB 博物館／轉角屋，走入地下監獄與審訊室。",meta:["步行","建議提早預約"]}
+]},
+{day:4,date:"9/17 (四)",country:"latvia",city:"里加",stay:"Heart of Riga Apartment",theme:"尤爾馬拉白沙灘金秋日落漫步。",blocks:[
+  {time:"09:30–18:00",act:"自里加中央車站搭火車直奔尤爾馬拉白沙灘，欣賞19世紀典雅木造度假別墅群與落日海風。",meta:["復古火車 單程約40分"]}
+]},
+{day:5,date:"9/18 (五)",country:"latvia",city:"里加",stay:"Heart of Riga Apartment",theme:"高亞國家公園金秋溪谷雙堡大健行（一日遊團，已訂）。",blocks:[
+  {time:"08:30–12:30",act:"抵達錫古爾達溪谷，探訪錫古爾達城堡古老城牆，遠眺滿山金黃楓紅。",meta:["火車 單程約1h15m","集合：里加大教堂正門前 9點"]},
+  {time:"13:30–17:00",act:"造訪紅磚堡壘圖拉達城堡，登頂俯瞰波羅的海森林與溪谷。",meta:["小鎮公車／步行"]}
+]},
+{day:6,date:"9/19 (六)",country:"estonia",city:"派爾努",stay:"Estonia Resort Hotel & Spa",theme:"移動至派爾努，入住頂級度假村，享受北歐桑拿與水療。",blocks:[
+  {time:"08:30–12:00",act:"搭乘 Lux Express 跨國客運前往愛沙尼亞夏日首都派爾努，車上供應熱飲與充電插座。",meta:["Lux Express 跨國大巴"]},
+  {time:"14:00–18:00",act:"入住度假村，享受館內9種北歐大桑拿、溫泉水療與死海漂浮，全程體力充電站。",meta:["飯店設施"]}
+]},
+{day:7,date:"9/20 (日)",country:"estonia",city:"塔林",stay:"Bob W Kesklinn",theme:"移動至塔林，下城區探秘中世紀老巷弄。",blocks:[
+  {time:"09:00–12:00",act:"慢享度假村豪華自助早餐，隨後搭大巴前進塔林，入住科技感公寓。",meta:["Lux Express 豪華大巴"]},
+  {time:"14:00–17:30",act:"漫步聖卡特琳娜通道，探訪吹玻璃工坊與傳統石匠手藝。",meta:["老城區步行"]},
+  {time:"19:00",act:"Rataskaevu 16 餐廳晚餐，招牌鹿肉大餐。",meta:["未出席需付訂金，請留意預約時間"]}
+]},
+{day:8,date:"9/21 (一)",country:"estonia",city:"塔林",stay:"Bob W Kesklinn",theme:"上城區座堂山漫步，考圖奧察觀景台打卡。",blocks:[
+  {time:"09:30–12:00",act:"深度探訪上城區座堂山，參觀亞歷山大·涅夫斯基洋蔥頭主教座堂。",meta:["步行健行，上坡路段較多"]},
+  {time:"13:30–16:30",act:"登上考圖奧察觀景台，捕捉紅瓦老城牆與海景，網美牆 The Times We Had。",meta:["老城步行"]}
+]},
+{day:9,date:"9/22 (二)",country:"estonia",city:"塔林",stay:"Bob W Kesklinn",theme:"工業文青風 Telliskivi，水上飛機港口博物館探秘潛水艇。",blocks:[
+  {time:"10:00–12:30",act:"前往 Telliskivi 貨櫃創意城，探訪繽紛壁畫與北歐獨立設計師店鋪。",meta:["輕軌電車／步行"]},
+  {time:"13:30–16:30",act:"水上飛機港口博物館，走入真實百年潛水艇與蒸汽破冰船內部。",meta:["步行／電車"]}
+]},
+{day:10,date:"9/23 (三)",country:"estonia",city:"塔林",stay:"Bob W Kesklinn",theme:"巴洛克浪漫皇家半日遊：卡德里奧宮沙皇花園秋楓。",blocks:[
+  {time:"10:00–12:30",act:"搭乘文青輕軌前往卡德里奧宮，沉醉在彼得大帝為愛妻建造的皇家幾何花園秋楓中。",meta:["輕軌電車"]}
+]},
+{day:11,date:"9/24 (四)",country:"estonia",city:"塔林",stay:"Bob W Kesklinn",theme:"拉赫馬國家公園：維魯沼澤木棧道療癒健行（一日遊團，已訂）。",blocks:[
+  {time:"09:00–16:00",act:"深入拉赫馬國家公園核心維魯沼澤，平坦木棧道徒步，登三層高塔看橘紅苔原與黑水潭。",meta:["地區長途大巴／一日小團","集合：塔林旅遊資訊中心 9點半"]}
+]},
+{day:12,date:"9/25 (五)",country:"latvia",city:"里加",stay:"City Center Family & Friends 公寓",theme:"取消夜巴優化：塔林老城補貨後舒服睡回里加。",blocks:[
+  {time:"13:30–19:00",act:"塔林老城補貨 Kalev 巧克力，下午搭 Lux Express 睡回里加。",meta:["Lux Express 旗艦客運"]}
+]},
+{day:13,date:"9/26 (六)",country:"lithuania",city:"維爾紐斯",stay:"Domillion 1bdr New old town apt",theme:"包車旗艦日：隆達爾宮 + 十字架山雙國寶（已訂）。",blocks:[
+  {time:"08:20–12:00",act:"專車前往拉脫維亞南部，探訪巴洛克凡爾賽宮殿隆達爾宮展廳與玫瑰園。",meta:["專屬跨國包車，行李在車上"]},
+  {time:"13:00–17:00",act:"跨越國境中停世界遺產十字架山，傍晚直達維爾紐斯公寓門口。",meta:["專屬跨國包車"]}
+]},
+{day:14,date:"9/27 (日)",country:"lithuania",city:"維爾紐斯",stay:"Domillion 1bdr New old town apt",theme:"維爾紐斯大教堂奇蹟地磚許願，對岸共和國文青探索。",blocks:[
+  {time:"10:00–12:30",act:"參觀維爾紐斯大教堂，尋找奇蹟地磚 Stebuklas 並踩踏許願。",meta:["步行"]},
+  {time:"13:30–17:00",act:"順遊聖安妮紅磚教堂，步行跨河進入對岸共和國尋找中文版趣味憲法。",meta:["步行"]}
+]},
+{day:15,date:"9/28 (一)",country:"lithuania",city:"特拉凱",stay:"Domillion 1bdr New old town apt",theme:"加爾韋湖中仙境：特拉凱島城堡一日遊。",blocks:[
+  {time:"09:00–15:30",act:"搭火車前往湖畔古鎮特拉凱，造訪矗立在加爾韋湖正中央的童話紅磚城堡，可租小船環湖。",meta:["火車 單程約35分"]}
+]},
+{day:16,date:"9/29 (二)",country:"lithuania",city:"維爾紐斯",stay:"Domillion 1bdr New old town apt",theme:"聖彼得與聖保羅教堂浮雕，黎明之門與 KGB 歷史總部。",blocks:[
+  {time:"10:00–12:00",act:"參觀擁有2000多座純白石膏雕刻的聖彼得與聖保羅教堂。",meta:["路面公車／步行"]},
+  {time:"13:30–17:00",act:"拜訪黎明之門參拜金衣黑面聖母，深入立陶宛 KGB 博物館地下囚室。",meta:["步行"]}
+]},
+{day:17,date:"9/30 (三)",country:"latvia",city:"里加",stay:"Riga Central Residences",theme:"重返里加：最後採購黑藥酒與琥珀紀念品，畢業晚宴。",blocks:[
+  {time:"08:20–16:00",act:"搭乘最後一趟 Lux Express 跨國大巴重返里加，入住公寓後進行最後採購。",meta:["Lux Express 跨國大巴"]},
+  {time:"晚間",act:"18天自由行精緻畢業晚宴。",meta:[]}
+]},
+{day:18,date:"10/1 (四)",country:"latvia",city:"里加 → 台北",stay:"—",theme:"珍重再見波羅的海：收拾行李，專車前往機場，辦理退稅出境返台。",blocks:[
+  {time:"全天",act:"公寓自煮早餐，打包18天豐碩回憶，專車送往機場，辦理退稅、出境，搭機返台。",meta:["機場專車送迎"]}
+]}
+];
+
+const COUNTRY_LABEL = {latvia:"拉脫維亞",estonia:"愛沙尼亞",lithuania:"立陶宛"};
+
+let currentDay = 0;
+
+function renderStamps(){
+  const row = document.getElementById('stamprow');
+  row.innerHTML = '';
+  DAYS.forEach((d,i)=>{
+    const el = document.createElement('div');
+    el.className = 'stamp '+d.country+(i===currentDay?' active':'');
+    el.innerHTML = '<div class="d">'+d.day+'</div><div class="m">'+d.date.split(' ')[0]+'</div>';
+    el.addEventListener('click',()=>{currentDay=i;render();});
+    row.appendChild(el);
+  });
+}
+
+function renderCard(){
+  const d = DAYS[currentDay];
+  const card = document.getElementById('daycard');
+  let blocksHtml = d.blocks.map(b=>{
+    let metaHtml = b.meta && b.meta.length ? '<div class="meta">'+b.meta.map(m=>'<span>'+m+'</span>').join('')+'</div>' : '';
+    return '<div class="block"><div class="time">'+b.time+'</div><div class="body"><div class="act">'+b.act+'</div>'+metaHtml+'</div></div>';
+  }).join('');
+  card.innerHTML =
+    '<div class="top"><span class="daylabel">DAY '+d.day+' / 18</span><span class="date">'+d.date+'</span></div>'+
+    '<h2>'+d.city+'</h2>'+
+    '<span class="tag '+d.country+'">'+COUNTRY_LABEL[d.country]+'</span>'+
+    '<div class="stay">下榻：<b>'+d.stay+'</b></div>'+
+    '<div class="theme">'+d.theme+'</div>'+
+    '<div class="blocks">'+blocksHtml+'</div>';
+}
+
+function render(){
+  renderStamps();
+  renderCard();
+  document.getElementById('prevBtn').disabled = currentDay===0;
+  document.getElementById('nextBtn').disabled = currentDay===DAYS.length-1;
+}
+
+document.getElementById('prevBtn').addEventListener('click',()=>{if(currentDay>0){currentDay--;render();}});
+document.getElementById('nextBtn').addEventListener('click',()=>{if(currentDay<DAYS.length-1){currentDay++;render();}});
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+render();
+
+let travelers = ['旅伴 A','旅伴 B','旅伴 C'];
+let expenses = [];
+let paidByIdx = 0;
+let splitOn = [true,true,true];
+
+async function loadState(){
+  try{
+    const t = await window.storage.get('baltic-trip-travelers');
+    if(t && t.value){ travelers = JSON.parse(t.value); }
+  }catch(e){}
+  try{
+    const ex = await window.storage.get('baltic-trip-expenses');
+    if(ex && ex.value){ expenses = JSON.parse(ex.value); }
+  }catch(e){}
+  document.getElementById('t0').value = travelers[0];
+  document.getElementById('t1').value = travelers[1];
+  document.getElementById('t2').value = travelers[2];
+  renderExpenseUI();
+}
+
+async function saveTravelers(){
+  try{ await window.storage.set('baltic-trip-travelers', JSON.stringify(travelers)); }catch(e){}
+}
+async function saveExpenses(){
+  try{ await window.storage.set('baltic-trip-expenses', JSON.stringify(expenses)); }catch(e){}
+}
+
+['t0','t1','t2'].forEach((id,i)=>{
+  document.getElementById(id).addEventListener('input',(e)=>{
+    travelers[i] = e.target.value || ('旅伴 '+String.fromCharCode(65+i));
+    saveTravelers();
+    renderExpenseUI();
+  });
+});
+
+function renderPaidbyRow(){
+  const row = document.getElementById('paidbyRow');
+  row.innerHTML = '';
+  travelers.forEach((name,i)=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip-select'+(i===paidByIdx?' on':'');
+    chip.textContent = name || ('旅伴 '+String.fromCharCode(65+i));
+    chip.addEventListener('click',()=>{ paidByIdx=i; renderPaidbyRow(); });
+    row.appendChild(chip);
+  });
+}
+
+function renderSplitRow(){
+  const row = document.getElementById('splitRow');
+  row.innerHTML = '';
+  travelers.forEach((name,i)=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip-select'+(splitOn[i]?' on':'');
+    chip.textContent = name || ('旅伴 '+String.fromCharCode(65+i));
+    chip.addEventListener('click',()=>{ splitOn[i]=!splitOn[i]; renderSplitRow(); });
+    row.appendChild(chip);
+  });
+}
+
+document.getElementById('addExpenseBtn').addEventListener('click',async ()=>{
+  const desc = document.getElementById('descInput').value.trim();
+  const amt = parseFloat(document.getElementById('amtInput').value);
+  const errEl = document.getElementById('formError');
+  if(!desc || isNaN(amt) || amt<=0 || !splitOn.some(Boolean)){
+    errEl.textContent = '請填寫項目名稱、正確金額，並至少選擇一位分攤對象。';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  expenses.push({
+    id: Date.now(),
+    desc: desc,
+    amount: Math.round(amt*100)/100,
+    paidBy: paidByIdx,
+    split: splitOn.slice()
+  });
+  document.getElementById('descInput').value = '';
+  document.getElementById('amtInput').value = '';
+  await saveExpenses();
+  renderExpenseUI();
+});
+
+async function deleteExpense(id){
+  expenses = expenses.filter(e=>e.id!==id);
+  await saveExpenses();
+  renderExpenseUI();
+}
+
+function fmt(n){
+  return '€'+ (Math.round(n*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function renderLedger(){
+  const body = document.getElementById('ledgerBody');
+  const empty = document.getElementById('ledgerEmpty');
+  body.innerHTML = '';
+  if(expenses.length===0){ empty.style.display='block'; return; }
+  empty.style.display='none';
+  expenses.slice().reverse().forEach(e=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>'+e.desc+'</td>'+
+      '<td>'+(travelers[e.paidBy]||'—')+'</td>'+
+      '<td class="amt">'+fmt(e.amount)+'</td>'+
+      '<td class="del"><button data-id="'+e.id+'">刪除</button></td>';
+    body.appendChild(tr);
+  });
+  body.querySelectorAll('button[data-id]').forEach(btn=>{
+    btn.addEventListener('click',()=>deleteExpense(Number(btn.dataset.id)));
+  });
+}
+
+function computeBalances(){
+  const paid = [0,0,0];
+  const owe = [0,0,0];
+  expenses.forEach(e=>{
+    paid[e.paidBy] += e.amount;
+    const n = e.split.filter(Boolean).length;
+    if(n===0) return;
+    const share = e.amount/n;
+    e.split.forEach((on,i)=>{ if(on) owe[i]+=share; });
+  });
+  return travelers.map((name,i)=>({
+    name: name || ('旅伴 '+String.fromCharCode(65+i)),
+    balance: Math.round((paid[i]-owe[i])*100)/100
+  }));
+}
+
+function renderBalances(){
+  const grid = document.getElementById('balanceGrid');
+  const balances = computeBalances();
+  grid.innerHTML = balances.map(b=>{
+    let cls = 'zero';
+    if(b.balance>0.004) cls='pos';
+    else if(b.balance<-0.004) cls='neg';
+    const label = b.balance>0.004 ? '應收' : (b.balance<-0.004 ? '應付' : '已結清');
+    return '<div class="balcard"><div class="name">'+b.name+'</div><div class="val '+cls+'">'+fmt(Math.abs(b.balance))+'</div><div class="split-label">'+label+'</div></div>';
+  }).join('');
+}
+
+function renderSettlement(){
+  const list = document.getElementById('settleList');
+  const balances = computeBalances().map(b=>({name:b.name,bal:b.balance}));
+  const creditors = balances.filter(b=>b.bal>0.004).sort((a,b)=>b.bal-a.bal);
+  const debtors = balances.filter(b=>b.bal<-0.004).sort((a,b)=>a.bal-b.bal);
+  const lines = [];
+  let ci=0, di=0;
+  const c = creditors.map(x=>({...x}));
+  const d = debtors.map(x=>({...x}));
+  while(ci<c.length && di<d.length){
+    const amt = Math.min(c[ci].bal, -d[di].bal);
+    if(amt>0.004){
+      lines.push(d[di].name+' <span class="arrow">→</span> '+c[ci].name+' &nbsp; '+fmt(amt));
+    }
+    c[ci].bal -= amt;
+    d[di].bal += amt;
+    if(c[ci].bal<=0.004) ci++;
+    if(d[di].bal>=-0.004) di++;
+  }
+  list.innerHTML = lines.length
+    ? lines.map(l=>'<div class="settle-line">'+l+'</div>').join('')
+    : '<div class="empty">目前帳目已平衡，或尚無支出紀錄。</div>';
+}
+
+function renderExpenseUI(){
+  renderPaidbyRow();
+  renderSplitRow();
+  renderLedger();
+  renderBalances();
+  renderSettlement();
+}
+
+loadState();
+</script>
+
+</body>
+</html>
