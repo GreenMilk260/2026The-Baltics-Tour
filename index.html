@@ -214,6 +214,19 @@ body{
   border:none;background:none;color:var(--ash);cursor:pointer;font-size:12px;
 }
 .empty{color:var(--ash);font-size:13px;padding:10px 0;}
+
+.shop-item{padding:10px 0;border-bottom:1px solid var(--line);}
+.shop-item:last-child{border-bottom:none;}
+.shop-item label{display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13.5px;line-height:1.65;}
+.shop-item input[type=checkbox]{margin-top:3px;flex:0 0 auto;width:16px;height:16px;accent-color:var(--amber);}
+.shop-item.checked label{color:var(--ash);text-decoration:line-through;}
+.shop-item .name{font-weight:600;}
+.citytag{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:999px;margin-left:2px;font-family:'JetBrains Mono',monospace;white-space:nowrap;vertical-align:1px;}
+.citytag.latvia{background:var(--amber-tint);color:var(--amber-deep);}
+.citytag.estonia{background:var(--juniper-tint);color:var(--juniper-deep);}
+.citytag.lithuania{background:var(--rowan-tint);color:var(--rowan-deep);}
+.citytag.general{background:var(--parchment);color:var(--ash);border:1px solid var(--line);}
+.panel-note{font-size:12px;color:var(--ash);line-height:1.7;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);}
 .balance-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;}
 .balcard{
   background:var(--parchment);border:1px solid var(--line);border-radius:10px;
@@ -241,6 +254,7 @@ body{
   <div class="tabs">
     <button class="tab-btn active" data-tab="itinerary">行程</button>
     <button class="tab-btn" data-tab="expense">分帳</button>
+    <button class="tab-btn" data-tab="shopping">採購</button>
   </div>
 </div>
 
@@ -312,6 +326,59 @@ body{
     <p class="foot-note">
       資料只儲存在你目前使用的裝置／帳號中，不會自動同步給其他兩位旅伴。<br>
       若需要三人共用同一份帳目，建議其中一人統一在同一裝置上記錄，或定期截圖同步。
+    </p>
+  </div>
+
+  <div class="view" id="view-shopping">
+    <div class="legend">
+      <span><i class="dot latvia"></i>拉脫維亞優先</span>
+      <span><i class="dot estonia"></i>愛沙尼亞優先</span>
+      <span><i class="dot lithuania"></i>立陶宛優先</span>
+    </div>
+
+    <div class="panel">
+      <h3>🍫 巧克力／甜點</h3>
+      <div id="shop-choc"></div>
+    </div>
+
+    <div class="panel">
+      <h3>🥟 主食／熟食（適合公寓廚房加熱）</h3>
+      <div id="shop-food"></div>
+    </div>
+
+    <div class="panel">
+      <h3>🥛 零食／早餐</h3>
+      <div id="shop-snack"></div>
+    </div>
+
+    <div class="panel">
+      <h3>💧 礦泉水比價</h3>
+      <table class="ledger">
+        <thead><tr><th>城市／超市</th><th style="text-align:right;">價格</th></tr></thead>
+        <tbody>
+          <tr><td>Vilnius・iKi</td><td class="amt">1.39 LT（約 €0.4）</td></tr>
+          <tr><td>Riga・Rimi</td><td class="amt">€0.43</td></tr>
+          <tr><td>Pärnu・PORT ARTUR</td><td class="amt">€0.48 + €0.08 稅</td></tr>
+          <tr><td style="color:var(--ash);">（對照）Helsinki・S-Market</td><td class="amt" style="color:var(--ash);">€1.09</td></tr>
+        </tbody>
+      </table>
+      <p class="panel-note">
+        比價心法：立陶宛 &gt; 拉脫維亞 &gt; 愛沙尼亞（物價由低至高）；同一國內，南部城市較便宜、首都最貴（例：Pärnu 的 Kalev 巧克力比 Tallinn 便宜；Fazer 在 Riga 是 €0.65，到愛沙尼亞 Pärnu 卻要 €1.35）。看到便宜的就多買一點吧！
+      </p>
+    </div>
+
+    <div class="panel">
+      <h3>💎 琥珀 Amber</h3>
+      <div id="shop-amber"></div>
+    </div>
+
+    <div class="panel">
+      <h3>💊 藥妝</h3>
+      <div id="shop-pharmacy"></div>
+    </div>
+
+    <p class="foot-note">
+      勾選狀態只會存在你目前使用的這台裝置上，換裝置或清除瀏覽器資料會重置。
     </p>
   </div>
 
@@ -612,6 +679,83 @@ function renderExpenseUI(){
   renderBalances();
   renderSettlement();
 }
+
+/* ---- 採購清單 ---- */
+const shopLists = {
+  'shop-choc': [
+    {id:'laima', name:'Laima', desc:'拉脫維亞國民巧克力，純巧克力款最推薦，伴手禮首選。', tag:'latvia', tagLabel:'Riga 多買'},
+    {id:'kalev', name:'Kalev', desc:'愛沙尼亞國民巧克力，巧克力餅乾、糖果都很順口。', tag:'estonia', tagLabel:'Pärnu 最便宜'},
+    {id:'karums', name:'Kārums', desc:'拉脫維亞經典甜零食，巧克力包酸奶起司內餡，推薦白包裝罌粟籽口味。', tag:'latvia', tagLabel:'Riga'},
+    {id:'fazer', name:'Fazer', desc:'芬蘭品牌，但在 Riga 買（€0.65）比在愛沙尼亞 Pärnu（€1.35）便宜一半以上，別留到愛沙尼亞才買。', tag:'latvia', tagLabel:'Riga 先買'}
+  ],
+  'shop-food': [
+    {id:'dumplings', name:'各式水餃', desc:'元寶／球形／熊形／穿山甲形都有，推薦油炸口味 Chebureki（包脆肉洋蔥），微波即可。', tag:'general', tagLabel:'三國都有'},
+    {id:'cepelinai', name:'Cepelinai', desc:'立陶宛國民美食，馬鈴薯外皮包豬絞肉，概念像肉圓，蒸熟後灑油蔥配酸奶，超市買回公寓微波即食。', tag:'lithuania', tagLabel:'Vilnius 必買'},
+    {id:'ikisalad', name:'iki 沙拉盒', desc:'推薦紅藜麥穀物沙拉，以及煙燻豬耳朵鹹沙拉（su rukytomis kiauliu ausimis），台灣人接受度很高。', tag:'lithuania', tagLabel:'立陶宛限定'},
+    {id:'herring', name:'鯡魚粉紅沙拉', desc:'鯡魚＋甜菜根＋高麗菜絲佐馬鈴薯泥，開動前要攪拌均勻，鹹味重建議配麵包或米食。', tag:'general', tagLabel:'波羅的海常見'},
+    {id:'soupbox', name:'利樂包番茄蔬菜湯底', desc:'開封直接倒鍋裡煮，公寓廚房懶人料理首選。', tag:'general', tagLabel:''}
+  ],
+  'shop-snack': [
+    {id:'ricecake', name:'米餅', desc:'當地人常當零食吃，也會加鮭魚、涼拌菜或水果，推薦蘋果肉桂口味。', tag:'general', tagLabel:''},
+    {id:'yogurt', name:'優格', desc:'品牌口味多元，也有嬰兒水果泥優格款，包裝特別。', tag:'general', tagLabel:''},
+    {id:'kefyras', name:'注意別買錯：Kefyras', desc:'綠色包裝是發酵牛奶（Kefyras），一般牛奶要找 pienas，兩個很好搞混。', tag:'general', tagLabel:'買前看清楚'},
+    {id:'roe', name:'鮭魚卵罐頭', desc:'配黑麵包吃，波羅的海盛產鮭魚，吃法很霸氣。', tag:'general', tagLabel:''},
+    {id:'chips', name:'特殊色洋芋片', desc:'藍色、紅色馬鈴薯口味，嚐鮮用，味道其實跟一般洋芋片差不多。', tag:'general', tagLabel:''}
+  ],
+  'shop-amber': [
+    {id:'amberbuy', name:'琥珀製品（飾品／擺件）', desc:'立陶宛琥珀產量與品質都是三國之冠，優先在立陶宛境內選購最划算、選擇也最多。', tag:'lithuania', tagLabel:'Vilnius 優先'},
+    {id:'ambermuseum', name:'琥珀博物館', desc:'立陶宛境內設有琥珀博物館，可以看到 3KG 重的波羅的海大琥珀，若時間允許值得排入行程。', tag:'lithuania', tagLabel:'順路排入'},
+    {id:'amberhunt', name:'海邊 Amber Hunting', desc:'有興趣可以到海邊體驗撿琥珀，純體驗性質，撿到的機率不高，別抱太大期望。', tag:'lithuania', tagLabel:'體驗限定'}
+  ],
+  'shop-pharmacy': [
+    {id:'drogas', name:'Drogas', desc:'三國最常見的連鎖藥妝店，拉脫維亞與立陶宛尤其普及，平價彩妝、身體保養品、草本護手霜都可以找。', tag:'general', tagLabel:'三國連鎖'},
+    {id:'raeapteek', name:'Raeapteek 塔林市政廳藥局', desc:'位於 Tallinn 舊城區，自 1422 年營業至今，是全歐洲最古老、仍在營運的藥房，可買傳統蜂蜜杏仁糖當話題伴手禮。', tag:'estonia', tagLabel:'只有 Tallinn'}
+  ]
+};
+
+let shopChecked = {};
+
+async function loadShopChecked(){
+  try{
+    const raw = localStorage.getItem('baltic-trip-shop-checked');
+    if(raw) shopChecked = JSON.parse(raw);
+  }catch(e){}
+}
+function saveShopChecked(){
+  try{ localStorage.setItem('baltic-trip-shop-checked', JSON.stringify(shopChecked)); }catch(e){}
+}
+
+function renderShoppingList(){
+  Object.keys(shopLists).forEach(containerId=>{
+    const el = document.getElementById(containerId);
+    if(!el) return;
+    el.innerHTML = shopLists[containerId].map(item=>{
+      const checked = !!shopChecked[item.id];
+      const tag = item.tagLabel
+        ? '<span class="citytag '+item.tag+'">'+item.tagLabel+'</span>'
+        : '';
+      return '<div class="shop-item'+(checked?' checked':'')+'" data-id="'+item.id+'">'+
+        '<label>'+
+          '<input type="checkbox" '+(checked?'checked':'')+'>'+
+          '<span><span class="name">'+item.name+'</span> '+tag+'<br>'+item.desc+'</span>'+
+        '</label>'+
+      '</div>';
+    }).join('');
+    el.querySelectorAll('.shop-item').forEach(row=>{
+      const cb = row.querySelector('input[type=checkbox]');
+      cb.addEventListener('change', ()=>{
+        shopChecked[row.dataset.id] = cb.checked;
+        row.classList.toggle('checked', cb.checked);
+        saveShopChecked();
+      });
+    });
+  });
+}
+
+(async function initShopping(){
+  await loadShopChecked();
+  renderShoppingList();
+})();
 
 loadState();
 </script>
